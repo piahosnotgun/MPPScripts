@@ -35,7 +35,7 @@ MPP.client.on('a', (data) => {
             } else {
                 chat.send('잘못된 아이디입니다. 아이디를 확인하신 후 다시 시도해주세요.');
             }
-        } else if (cmd === 'banlist') {
+        } else if (cmd === '/banlist') {
             let txt = '금지된 유저 목록: ';
             for (let banned in banlist) {
                 txt += banned + ' ';
