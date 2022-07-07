@@ -8,13 +8,15 @@ let permabanlist = {};
 let permaban = true;
 
 let delay = 0;
-
+window.onload = () => {
+    refreshPermaban();
+}
 MPP.client.on('a', (data) => {
     let msg = data.a;
     let id = data.p._id;
     let args = msg.split(' ');
     let cmd = args.shift();
-	handleCommand(id, cmd, args);
+    handleCommand(id, cmd, args);
 });
 MPP.client.on('participant update', (p) => {
     let id = p._id;
@@ -24,19 +26,22 @@ MPP.client.on('participant update', (p) => {
     if (anonban && p.name === 'Anonymous') {
         ban(id);
     }
+    if (permaban && permabanlist[id] !== 'undefined') {
+        ban(id)
+    }
 });
 
-function handleCommand(id, cmd, args){
+function handleCommand(id, cmd, args) {
     if (canUseCommand(id)) {
         if (cmd === '/ban') {
             if (typeof args[0] === 'undefined') {
                 chat.send('추방할 유저의 id를 입력해주세요');
                 return;
             }
-			if(canUseCommand(args[0]) && ! isAdmin(id)){
-				chat.send('소유자가 아닌 유저는 소유자 또는 다른 관리자를 추방할 수 없습니다.');
-				return;
-			}
+            if (canUseCommand(args[0]) && !isAdmin(id)) {
+                chat.send('소유자가 아닌 유저는 소유자 또는 다른 관리자를 추방할 수 없습니다.');
+                return;
+            }
             chat.send('사용자 아이디 ' + args[0] + ' (이)가 차단되었습니다.');
             ban(args[0]);
         } else if (cmd === '/pardon') {
@@ -58,37 +63,37 @@ function handleCommand(id, cmd, args){
             chat.send(txt);
         }
     }
-	if(isAdmin(id)) {
-		if(cmd === '/grant'){
-			if(typeof args[0] === 'undefined'){
-				chat.send('권한을 부여할 유저의 id를 입력해주세요');
-				return;
-			}
-			if(typeof grant[args[0]] === 'undefined'){
-				grant[args[0]] = true;
-				chat.send("관리자 권한이 부여되었습니다: " + args[0]);
-			} else {
-				delete grant[args[0]];
-				chat.send('관리자 권한이 박탈되었습니다: ' + args[0]);
-			}
-		}
-		if(cmd === '/grantlist'){
+    if (isAdmin(id)) {
+        if (cmd === '/grant') {
+            if (typeof args[0] === 'undefined') {
+                chat.send('권한을 부여할 유저의 id를 입력해주세요');
+                return;
+            }
+            if (typeof grant[args[0]] === 'undefined') {
+                grant[args[0]] = true;
+                chat.send("관리자 권한이 부여되었습니다: " + args[0]);
+            } else {
+                delete grant[args[0]];
+                chat.send('관리자 권한이 박탈되었습니다: ' + args[0]);
+            }
+        }
+        if (cmd === '/grantlist') {
             let txt = '관리자 유저 목록: ';
             for (let granted in grant) {
                 txt += granted + ' ';
             }
             chat.send(txt);
-		}
-		if(cmd === '/anonban'){
-			if(anonban){
-				chat.send('익명 닉네임(Anonymous) 금지를 해제합니다.');
-				anonban = false;
-			} else {
-				chat.send('익명 닉네임(Anonymous)을 금지합니다.');
-				anonban = true;
-			}
-		}
-	}
+        }
+        if (cmd === '/anonban') {
+            if (anonban) {
+                chat.send('익명 닉네임(Anonymous) 금지를 해제합니다.');
+                anonban = false;
+            } else {
+                chat.send('익명 닉네임(Anonymous)을 금지합니다.');
+                anonban = true;
+            }
+        }
+    }
     if (cmd === '/list') {
         let names = $('.nametext');
         let list = '';
@@ -101,8 +106,8 @@ function handleCommand(id, cmd, args){
         }
         chat.send(list);
     }
-    if(cmd === '/delay') {
-        if(typeof args[0] === 'undefined' || parseInt(args[0]) < 0){
+    if (cmd === '/delay') {
+        if (typeof args[0] === 'undefined' || parseInt(args[0]) < 0) {
             chat.send('밴 딜레이를 올바른 정수로 입력해주세요');
             return
         }
@@ -110,8 +115,8 @@ function handleCommand(id, cmd, args){
         chat.send('밴 딜레이가 ' + args[0] + '(으)로 설정되었습니다.');
     }
 
-    if(cmd === '/permaban'){
-        if(! permaban){
+    if (cmd === '/permaban') {
+        if (!permaban) {
             chat.send('리스트에 등록된 유저를 영구적으로 추방하도록 설정합니다.');
             permaban = true;
         } else {
@@ -119,16 +124,25 @@ function handleCommand(id, cmd, args){
             permaban = false;
         }
     }
-}
-function refreshPermaban(){
 
+    if (cmd === '/refresh') {
+        refreshPermaban();
+    }
 }
-function isAdmin(id){
-	return id === me._id && MPP.client.isOwner();
+
+async function refreshPermaban() {
+    permabanlist = await import('https://raw.githack.com/piahosnotgun/MPPScripts/main/BanUtils/permaban.js');
+    console.log('Permaban 리스트가 리로드 되었습니다.')
 }
-function canUseCommand(id){
-	return (id === me._id && MPP.client.isOwner()) || typeof(grant[id]) !== 'undefined';
+
+function isAdmin(id) {
+    return id === me._id && MPP.client.isOwner();
 }
+
+function canUseCommand(id) {
+    return (id === me._id && MPP.client.isOwner()) || typeof (grant[id]) !== 'undefined';
+}
+
 function ban(id) {
     banlist[id] = true;
     MPP.client.sendArray([
