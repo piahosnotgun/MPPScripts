@@ -4,6 +4,11 @@ let chat = MPP.chat;
 let anonban = false;
 let grant = {};
 
+let permabanlist = {};
+let permaban = true;
+
+let delay = 0;
+
 MPP.client.on('a', (data) => {
     let msg = data.a;
     let id = data.p._id;
@@ -68,9 +73,9 @@ function handleCommand(id, cmd, args){
 			}
 		}
 		if(cmd === '/grantlist'){
-            let txt = '금지된 유저 목록: ';
-            for (let banned in banlist) {
-                txt += banned + ' ';
+            let txt = '관리자 유저 목록: ';
+            for (let granted in grant) {
+                txt += granted + ' ';
             }
             chat.send(txt);
 		}
@@ -96,6 +101,27 @@ function handleCommand(id, cmd, args){
         }
         chat.send(list);
     }
+    if(cmd === '/delay') {
+        if(typeof args[0] === 'undefined' || parseInt(args[0]) < 0){
+            chat.send('밴 딜레이를 올바른 정수로 입력해주세요');
+            return
+        }
+        delay = parseInt(args[0])
+        chat.send('밴 딜레이가 ' + args[0] + '(으)로 설정되었습니다.');
+    }
+
+    if(cmd === '/permaban'){
+        if(! permaban){
+            chat.send('리스트에 등록된 유저를 영구적으로 추방하도록 설정합니다.');
+            permaban = true;
+        } else {
+            chat.send('영구 추방이 해제되었습니다.');
+            permaban = false;
+        }
+    }
+}
+function refreshPermaban(){
+
 }
 function isAdmin(id){
 	return id === me._id && MPP.client.isOwner();
@@ -109,7 +135,7 @@ function ban(id) {
         {
             m: 'kickban',
             _id: id,
-            ms: 0,
+            ms: delay,
         },
     ]);
 }
