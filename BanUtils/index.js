@@ -4,7 +4,7 @@ let chat = MPP.chat;
 let anonban = false;
 let grant = {};
 
-let permabanlist = {};
+let permabanlist = {"840409e6fcf49c3fa9bde525": true};
 let permaban = true;
 
 let delay = 0;
@@ -124,15 +124,6 @@ function handleCommand(id, cmd, args) {
             permaban = false;
         }
     }
-
-    if (cmd === '/refresh') {
-        refreshPermaban();
-    }
-}
-
-async function refreshPermaban() {
-    permabanlist = await import('https://raw.githack.com/piahosnotgun/MPPScripts/main/BanUtils/permaban.js');
-    console.log('Permaban 리스트가 리로드 되었습니다.')
 }
 
 function isAdmin(id) {
