@@ -26,7 +26,7 @@ MPP.client.on('participant update', (p) => {
     if (anonban && p.name === 'Anonymous') {
         ban(id);
     }
-    if (permaban && permabanlist[id] !== 'undefined') {
+    if (permaban && typeof permabanlist[id] !== 'undefined') {
         ban(id)
     }
 });
