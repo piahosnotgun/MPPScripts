@@ -4,7 +4,8 @@ let chat = MPP.chat;
 let anonban = false;
 let grant = {};
 
-let permabanlist = {"840409e6fcf49c3fa9bde525": true};
+let permabanlist = {"840409e6fcf49c3fa9bde525": true,
+                   "5c1d1aefff581f8460dff129": true};
 let permaban = true;
 
 let delay = 0;
